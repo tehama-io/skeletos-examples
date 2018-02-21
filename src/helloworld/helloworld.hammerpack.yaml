@@ -1,0 +1,63 @@
+job:
+  id: development
+  do: develop
+
+project:
+  name: Hello World
+  description: A simple Hello World project showing how to setup Skeletos and Hammerpack
+
+# no other project dependencies
+#  dependencies:
+
+repo:
+  root-directory: ../..
+  root-src-directory: ${repo:root-directory}/src
+
+develop:
+
+  do: typescript|copyassets,webservice
+
+  copyassets:
+    dirs:
+      - ${repo:root-directory}/src/helloworld/**
+
+  env-var-files:
+    dotenv: .env
+
+  typescript:
+    compile-files:
+      - client/index.ts
+      - server/index.ts
+      - server/renderer/LoadingRenderer.tsx
+      - server/renderer/FullRenderer.tsx
+
+  webservice:
+    client:
+      entry: client/index.ts
+
+    server:
+      entry: server/index.ts
+
+    alias:
+      ## Use a LoadingRenderer on the server so that we can have hot-reloading on the client that does not restart the server.
+      renderer: server/renderer/LoadingRenderer.tsx
+
+
+## Build is pretty much the same as develop except we use the full renderer instead.
+
+build:
+  do: ${develop:do}
+
+  copyassets: ${develop:copyassets}
+
+  env-var-files: ${develop:env-var-files}
+
+  typescript: ${develop:typescript}
+
+  webservice:
+    client: ${develop:webservice:client}
+
+    server: ${develop:webservice:server}
+
+    alias:
+      renderer: server/renderer/FullRenderer.tsx
